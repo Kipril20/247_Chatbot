@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Assistant - Praktikum PWS Pertemuan 10</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Highlight.js Theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Main Chat Area -->
+        <main class="chat-container">
+            <!-- Header -->
+            <header class="chat-header">
+                <div class="header-left">
+                    <div class="bot-badge-icon">
+                        <i class="fa-solid fa-robot"></i>
+                        <span class="status-indicator" id="status-indicator" title="Status: Online"></span>
+                    </div>
+                    <div class="header-titles">
+                        <div class="title-row">
+                            <h1 class="chat-title">PWS AI Assistant</h1>
+                            <span class="model-badge"><i class="fa-solid fa-bolt"></i> ling-3.2-flash</span>
+                        </div>
+                        <p class="chat-subtitle" id="connection-status">Praktikum PWS Pertemuan ke-10 &bull; Streaming SSE Ready</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="clear-btn" class="btn btn-secondary" title="Bersihkan Percakapan">
+                        <i class="fa-regular fa-trash-can"></i>
+                        <span class="btn-text">Bersihkan Chat</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Chat Messages Display Area -->
+            <section class="messages-viewport" id="messages-viewport">
+                <!-- Welcome Screen (shown when chat is empty) -->
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-icon-glow">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h2 class="welcome-title">Selamat Datang di PWS Chat AI!</h2>
+                    <p class="welcome-desc">
+                        Asisten cerdas berbasis OpenRouter API dengan teknologi streaming <em>Server-Sent Events</em> (SSE).
+                        Mulai percakapan atau pilih salah satu contoh pertanyaan di bawah:
+                    </p>
+                    
+                    <div class="prompt-suggestions">
+                        <button class="prompt-chip" data-prompt="Jelaskan apa itu Web Service dan perbedaan antara RESTful API dengan SOAP!">
+                            <i class="fa-solid fa-network-wired"></i>
+                            <div class="chip-content">
+                                <strong>Apa itu Web Service?</strong>
+                                <span>Perbedaan RESTful API vs SOAP</span>
+                            </div>
+                        </button>
+                        <button class="prompt-chip" data-prompt="Bagaimana cara kerja streaming Server-Sent Events (SSE) di Express.js? Berikan penjelasannya!">
+                            <i class="fa-solid fa-bolt"></i>
+                            <div class="chip-content">
+                                <strong>Streaming SSE di Express</strong>
+                                <span>Cara kerja Server-Sent Events</span>
+                            </div>
+                        </button>
+                        <button class="prompt-chip" data-prompt="Berikan contoh kode Express.js untuk membuat endpoint REST API CRUD sederhana!">
+                            <i class="fa-solid fa-code"></i>
+                            <div class="chip-content">
+                                <strong>Contoh REST API Express</strong>
+                                <span>Template CRUD sederhana</span>
+                            </div>
+                        </button>
+                        <button class="prompt-chip" data-prompt="Apa kelebihan dan kekurangan arsitektur microservices dibandingkan monolitik?">
+                            <i class="fa-solid fa-cubes"></i>
+                            <div class="chip-content">
+                                <strong>Microservices vs Monolith</strong>
+                                <span>Kelebihan dan kekurangannya</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages List Container -->
+                <div class="messages-list" id="messages-list"></div>
+            </section>
+
+            <!-- Scroll-to-bottom Floating Button -->
+            <button id="scroll-bottom-btn" class="scroll-bottom-btn hidden" title="Gulir ke Bawah">
+                <i class="fa-solid fa-arrow-down"></i>
+            </button>
+
+            <!-- Footer / Input Form Area -->
+            <footer class="chat-footer">
+                <form id="chat-form" class="chat-input-wrapper">
+                    <div class="input-container">
+                        <textarea 
+                            id="user-input" 
+                            class="chat-textarea" 
+                            rows="1" 
+                            placeholder="Ketik pesan Anda di sini... (Shift + Enter untuk baris baru)"
+                            autocomplete="off"
+                            spellcheck="false"
+                            required
+                        ></textarea>
+                        
+                        <div class="input-controls">
+                            <!-- Stop Generation Button (active when generating) -->
+                            <button type="button" id="stop-btn" class="control-btn stop-btn hidden" title="Hentikan respons">
+                                <i class="fa-solid fa-square"></i>
+                                <span>Stop</span>
+                            </button>
+
+                            <!-- Send Message Button -->
+                            <button type="submit" id="send-btn" class="control-btn send-btn" title="Kirim Pesan (Enter)">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-footer-info">
+                        <span class="hint-text"><i class="fa-regular fa-keyboard"></i> Tekan <strong>Enter</strong> untuk mengirim &bull; <strong>Shift + Enter</strong> untuk baris baru</span>
+                        <span class="char-counter" id="char-counter">0 karakter</span>
+                    </div>
+                </form>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- External Libraries: Marked.js & Highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- Application Script -->
+    <script src="script.js"></script>
+</body>
+</html>
